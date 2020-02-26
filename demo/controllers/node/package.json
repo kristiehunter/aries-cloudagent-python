@@ -1,0 +1,45 @@
+{
+  "name": "indy-agent-controller",
+  "version": "1.0.0",
+  "description": "NodeJS Controller for an independent Python Indy Agent",
+  "main": "controller.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "pretest": "eslint .",
+    "test": "mocha scripts/test/*.test.js",
+    "start": "node controller.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kristiehunter/aries-cloudagent-python.git"
+  },
+  "keywords": [
+    "Hyperledger",
+    "Indy",
+    "Agent",
+    "Controller",
+    "Aries"
+  ],
+  "author": "",
+  "license": "See License in root folder",
+  "bugs": {
+    "url": "https://github.com/kristiehunter/aries-cloudagent-python/issues"
+  },
+  "homepage": "https://github.com/kristiehunter/aries-cloudagent-python#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^3.21.2",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.8",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "eslint": "^6.8.0",
+    "mocha": "^7.0.1"
+  }
+}
