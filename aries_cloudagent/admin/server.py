@@ -201,6 +201,7 @@ class AdminServer(BaseAdminServer):
         app["request_context"] = self.context
         app["outbound_message_router"] = self.responder.send
 
+        # Added route to register the external controller webhook
         app.add_routes(
             [
                 web.get("/", self.redirect_handler),
@@ -208,6 +209,7 @@ class AdminServer(BaseAdminServer):
                 web.get("/status", self.status_handler),
                 web.post("/status/reset", self.status_reset_handler),
                 web.get("/ws", self.websocket_handler),
+                web.post("/webhooks/register", self.register_webhook),
             ]
         )
 
@@ -239,6 +241,17 @@ class AdminServer(BaseAdminServer):
         )
         app.on_startup.append(self.on_startup)
         return app
+    
+    # Register the external controller webook
+    async def register_webhook(self, request: web.BaseRequest):
+
+        body = await request.json()
+        self.add_webhook_target(body["url"])
+        response = {
+            "connection": "ok"
+        }
+
+        return web.json_response(response)
 
     async def start(self) -> None:
         """

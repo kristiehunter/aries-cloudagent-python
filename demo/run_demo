@@ -36,8 +36,8 @@ elif [ "$AGENT" = "performance" ]; then
 	AGENT_PORT_RANGE=8030-8038
 elif [ "$AGENT" = "general" ]; then
 	AGENT_MODULE="general"
-	AGENT_PORT=8050
-	AGENT_PORT_RANGE=8050-8058
+	AGENT_PORT=8020
+	AGENT_PORT_RANGE=8020-8028
 else
 	echo "Please specify which agent you want to run. Choose from 'faber', 'alice', 'acme', 'general', or 'performance'."
 	exit 1
@@ -85,9 +85,11 @@ if [ "$OSTYPE" = "msys" ]; then
 fi
 DOCKER=${DOCKER:-docker}
 
+set -x
 echo "Starting $AGENT..."
 $DOCKER run --name $AGENT --rm -it \
 	-p 0.0.0.0:$AGENT_PORT_RANGE:$AGENT_PORT_RANGE \
 	-v "/$(pwd)/../logs:/home/indy/logs" \
 	$DOCKER_ENV \
 	faber-alice-demo $AGENT_MODULE --port $AGENT_PORT $@
+set +x

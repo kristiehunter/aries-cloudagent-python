@@ -496,6 +496,18 @@ async def connections_create_static(request: web.BaseRequest):
 
     return web.json_response(response)
 
+async def connections_register_webhook(request: web.BaseRequest):
+
+    context = request.app["request_context"]
+    body = await request.json()
+
+    response = {
+        "request": body,
+        "message": "Hi"
+    }    
+
+    return web.json_response(response)
+
 
 async def register(app: web.Application):
     """Register routes."""
@@ -516,5 +528,6 @@ async def register(app: web.Application):
                 connections_establish_inbound,
             ),
             web.post("/connections/{id}/remove", connections_remove),
+            web.post("/connections/register-webhook-old", connections_register_webhook),
         ]
     )

@@ -102,7 +102,9 @@ async def main(start_port: int, show_timing: bool = False):
         agent = GeneralAgent(
             start_port, start_port + 1, genesis_data=genesis, timing=show_timing
         )
+        log_status("--- debug: GeneralAgent created")
         await agent.register_did()
+        log_status("--- debug: DID registered")
 
         with log_timer("Startup duration:"):
             await agent.start_process()
@@ -116,7 +118,7 @@ async def main(start_port: int, show_timing: bool = False):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Runs an Acme demo agent.")
+    parser = argparse.ArgumentParser(description="Runs a general demo agent.")
     parser.add_argument(
         "-p",
         "--port",
