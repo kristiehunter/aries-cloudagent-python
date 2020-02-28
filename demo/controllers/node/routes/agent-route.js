@@ -5,52 +5,48 @@ const AgentRouter = express.Router();
 const logger = require(path.join(__dirname, "..", "config", "logger")).getLogger("Agent-Route");
 const AriesHost = process.env.AGENT_URL;
 
-AgentRouter.post("/issue/credential", (request, response) => {
-    response.status(200).send({ temporary: "temporary "});
-});
-
-AgentRouter.post("/issue/proof", (request, response) => {
-    response.status(200).send({ temporary: "temporary "});
-});
-
-AgentRouter.post("/request/proof", (request, response) => {
-    response.status(200).send({ temporary: "temporary "});
-});
-
-AgentRouter.post("/issue/message", async (request, response) => {
-    try {
-        let message = await requestPromise({
-            uri: `${AriesHost}/connections/${request.body.connectionID}/send-message`,
-            method: "POST", body: JSON.stringify({ content: request.body.message }),
-            resolveWithFullResponse: true });
-        let data = JSON.parse(message.body);
-
-        response.status(200).send({ message: data });
-
-    } catch (err) {
-        logger.error(`POST /issue/message - ${err.message}`);
-        response.status(400).send({ error: 400, message: err.message });
-    }
-});
-
-AgentRouter.post("/request/connection", async (request, response) => {
+AgentRouter.post("/issue/connection", async (request, response) => {
     try {
         let invitation = await requestPromise({
             uri: `${AriesHost}/connections/create-invitation`, method: "POST",
             resolveWithFullResponse: true });
         let data = JSON.parse(invitation.body);
 
-        let connectionID = data.connection_id;
-        let recipientKeys = data.invitation.recipientKeys;
-        let invitationURL = data.invitation_url;
+        process.env.CONNECTION_ID = data.connection_id;
+        process.env.RECIPIENT_KEYS = data.invitation.recipientKeys;
+        process.env.INVITATION_URL = data.invitation_url;
 
-        response.status(200).send({ message: connectionID });
+        let message = {
+            connectionID: data.connection_id,
+            invitation: data.invitation
+        };
+
+        response.status(200).send(message);
 
     } catch (err) {
-        logger.error(`POST /request/connection - Create Invitation - ${err.message}`);
+        logger.error(`POST /issue/connection - ${err.message}`);
         response.status(400).send({ error: 400, message: err.message });
     }
 });
+
+
+AgentRouter.post("/accept/connection", async (request, response) => {
+    try {
+        let invitation = request.body.invitation;
+        logger.debug(invitation);
+        let accept = await requestPromise({
+            uri: `${AriesHost}/connections/receive-invitation`, method: "POST",
+            resolveWithFullResponse: true, body: JSON.stringify(invitation)
+        });
+
+        response.status(200).send({ invitation: accept });
+
+    } catch (err) {
+        logger.error(`POST /accept/connection - ${err.message}`);
+        response.status(400).send({ error: 400, message: err.message });
+    }
+});
+
 
 AgentRouter.post("/webhook", async (_, response) => {
     const url = `http://${process.env.DOCKERHOST}:${process.env.PORT}`;

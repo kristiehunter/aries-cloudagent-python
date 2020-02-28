@@ -53,7 +53,7 @@ docker run --name alice_controller -d --rm -it \
     -e AGENT_URL=http://192.168.65.3:8061 node_server:0.1
 set +x
 
-sleep 5
+sleep 10
 
 # Step 3: Register the external controller webhooks with the Cloud Agents
 curl -X POST -H "Content-Type: application/json" http://0.0.0.0:5000/api/agent/webhook 

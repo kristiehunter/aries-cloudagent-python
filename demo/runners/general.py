@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import random
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # noqa
@@ -18,6 +19,10 @@ from runners.support.utils import (
 )
 
 LOGGER = logging.getLogger(__name__)
+
+CRED_PREVIEW_TYPE = (
+    "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/issue-credential/1.0/credential-preview"
+)
 
 
 class GeneralAgent(DemoAgent):
@@ -66,8 +71,22 @@ class GeneralAgent(DemoAgent):
         )
 
         if state == "request_received":
-            # TODO issue credentials based on the credential_definition_id
-            pass
+            log_status("#17 Issue credential to X")
+            # issue credentials based on the credential_definition_id
+            cred_attrs = self.cred_attrs[message["credential_definition_id"]]
+            cred_preview = {
+                "@type": CRED_PREVIEW_TYPE,
+                "attributes": [
+                    {"name": n, "value": v} for (n, v) in cred_attrs.items()
+                ],
+            }
+            await self.admin_POST(
+                f"/issue-credential/records/{credential_exchange_id}/issue",
+                {
+                    "comment": f"Issuing credential, exchange {credential_exchange_id}",
+                    "credential_preview": cred_preview,
+                },
+            )
 
     async def handle_present_proof(self, message):
         state = message["state"]
@@ -81,8 +100,13 @@ class GeneralAgent(DemoAgent):
         )
 
         if state == "presentation_received":
-            # TODO handle received presentations
-            pass
+            log_status("Process the proof provided by X")
+            log_status("Check if proof is valid")
+            proof = await self.admin_POST(
+                f"/present-proof/records/{presentation_exchange_id}/"
+                "verify-presentation"
+            )
+            self.log("Proof =", proof["verified"])
 
     async def handle_basicmessages(self, message):
         self.log("Received message:", message["content"])
@@ -102,14 +126,36 @@ async def main(start_port: int, show_timing: bool = False):
         agent = GeneralAgent(
             start_port, start_port + 1, genesis_data=genesis, timing=show_timing
         )
-        log_status("--- debug: GeneralAgent created")
+        log_msg("--- debug: GeneralAgent created")
         await agent.register_did()
-        log_status("--- debug: DID registered")
+        log_msg("--- debug: DID registered")
 
         with log_timer("Startup duration:"):
             await agent.start_process()
         log_msg("Admin url is at:", agent.admin_url)
         log_msg("Endpoint url is at:", agent.endpoint)
+        log_msg(start_port)
+
+        if start_port == 8050:
+            log_msg("Have Faber Agent -- executing prerequisites")
+            with log_timer("Publish schema/cred def duration:"):
+                log_status("Create a new schema/cred def on the ledger")
+                version = format(
+                    "%d.%d.%d"
+                    % (
+                        random.randint(1, 101),
+                        random.randint(1, 101),
+                        random.randint(1, 101),
+                    )
+                )
+                (
+                    _,  # schema id
+                    credential_definition_id,
+                ) = await agent.register_schema_and_creddef(
+                    "degree schema", version, ["name", "date", "degree", "age"]
+                )
+        else:
+            log_msg("Have Alice Agent -- no prerequisites required")
 
     except:
         log_msg("Something happened")

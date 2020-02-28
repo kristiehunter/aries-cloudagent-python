@@ -1,0 +1,64 @@
+{
+	"info": {
+		"_postman_id": "0a642db6-5bae-4747-be1a-a85c30927286",
+		"name": "INDY",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Issue Connection",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/agent/request/connection",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"agent",
+						"request",
+						"connection"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accept Connection",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"connectionID\": \"75ac038e-2edd-45c8-8c97-e35094e2b661\",\n    \"invitation\": {\n        \"@type\": \"did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/invitation\",\n        \"@id\": \"fbb2dba3-6a66-4835-82f0-8d2e65586cfd\",\n        \"label\": \"General Agent\",\n        \"serviceEndpoint\": \"http://192.168.65.3:8050\",\n        \"recipientKeys\": [\n            \"79EdDXRGgc5NmMv6oaFnnQyTF7zDo49sq3cw36o9HDJp\"\n        ]\n    }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/agent/accept/connection",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"agent",
+						"accept",
+						"connection"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
